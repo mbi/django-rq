@@ -76,6 +76,7 @@
                             <th><div class = 'text'><span>Enqueued</span></div></th>
                             <th><div class = 'text'><span>Status</span></div></th>
                             <th><div class = 'text'><span>Callable</span></div></th>
+                            <th><div class = 'text'><span>Args</span></div></th>
                             {% block extra_columns %}
                             {% endblock extra_columns %}
                         </tr>
@@ -110,6 +111,15 @@
                                 </td>
                                 <td>{{ job.get_status }}</td>
                                 <td>{{ job|show_func_name }}</td>
+                                <td>
+                                    {% if job.args %}
+                                    <ul>
+                                        {% for arg in job.args %}
+                                            <li>{{ arg|force_escape }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}
+                                </td>
                                 {% block extra_columns_values %}
                                 {% endblock extra_columns_values %}
                             </tr>
