@@ -14,8 +14,10 @@ from rq import requeue_job
 from rq.exceptions import NoSuchJobError
 from rq.job import Job, JobStatus
 from rq.registry import (DeferredJobRegistry, FailedJobRegistry,
-                         FinishedJobRegistry, StartedJobRegistry)
+                         FinishedJobRegistry, ScheduledJobRegistry,
+                         StartedJobRegistry)
 from rq.worker import Worker
+from rq.worker_registration import clean_worker_registry
 
 from .queues import get_queue_by_index, get_scheduler
 from .settings import API_TOKEN
@@ -233,6 +235,7 @@ def started_jobs(request, queue_index):
 def workers(request, queue_index):
     queue_index = int(queue_index)
     queue = get_queue_by_index(queue_index)
+    clean_worker_registry(queue)
     all_workers = Worker.all(queue.connection)
     workers = [worker for worker in all_workers if queue.name in worker.queue_names()]
 
@@ -513,6 +516,9 @@ def enqueue_job(request, queue_index, job_id):
             registry.remove(job)
         elif job.get_status() == JobStatus.FINISHED:
             registry = FinishedJobRegistry(queue.name, queue.connection)
+            registry.remove(job)
+        elif job.get_status() == JobStatus.SCHEDULED:
+            registry = ScheduledJobRegistry(queue.name, queue.connection)
             registry.remove(job)
 
         messages.info(request, 'You have successfully enqueued %s' % job.id)

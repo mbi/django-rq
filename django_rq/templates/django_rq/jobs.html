@@ -113,11 +113,9 @@
                                 <td>{{ job|show_func_name }}</td>
                                 <td>
                                     {% if job.args %}
-                                    <ul>
-                                        {% for arg in job.args %}
-                                            <li>{{ arg|force_escape }}</li>
-                                        {% endfor %}
-                                    </ul>
+                                    {% for arg in job.args %}
+                                        <code>{{ arg|force_escape }}</code>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
                                     {% endif %}
                                 </td>
                                 {% block extra_columns_values %}
